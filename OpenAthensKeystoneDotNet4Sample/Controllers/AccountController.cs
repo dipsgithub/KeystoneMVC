@@ -6,9 +6,15 @@ using System.Web;
 using System.Web.Mvc;
 
 namespace OpenAthensKeystoneDotNet4Sample.Controllers
-{
+{   
     public class AccountController : Controller
     {
+        private string email;
+        private string firstname;
+        private string lastname;
+        private string logintype;
+        private string paramvalue;
+        private string EduPersonEntitlement;
         // GET: Login
         public void Login(string returnUrl = "/")
         {
@@ -30,29 +36,50 @@ namespace OpenAthensKeystoneDotNet4Sample.Controllers
                     {
                         str2 = claim.Value;
                     }
+                    if (claim.Type == "email")
+                    {
+                        email = claim.Value;
+                    }
+                    if (claim.Type == "name")
+                    {
+                        firstname = claim.Value;
+                    }
+                    if (claim.Type == "lastname")
+                    {
+                        lastname = claim.Value;
+                    }
                     if (str2.IndexOf("openathens") > 0)
                     {
                         if (claim.Type == "derivedEduPersonScope")
                         {
+                            logintype = "athense";
                             string str3 = ConfigurationManager.AppSettings["anatomytvurl"];
-                            string paramvalue = claim.Value;
-                            this.redirectPage("scope", paramvalue, "", "", target);
+                            paramvalue = claim.Value;
                         }
                     }
                     else if (claim.Type == "realmName")
                     {
                         string str5 = ConfigurationManager.AppSettings["anatomytvurl"];
-                        string paramvalue = claim.Value;
+                        paramvalue = claim.Value;
                         if (claim.Type == "EduPersonEntitlement")
                         {
-                            string str7 = claim.Value;
-                            if (!string.IsNullOrEmpty(str7))
-                            {
-                                this.redirectPage("entityID", paramvalue, "EduPersonEntitlement", str7, "");
-                            }
+                            logintype = "shibboleth";
+                            EduPersonEntitlement = claim.Value;
                         }
-                        this.redirectPage("entityID", paramvalue, "", "", "");
+                    }                    
+                }
+                if (logintype == "athense")
+                {
+                    this.redirectPage("scope", paramvalue, "", "", target);
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(EduPersonEntitlement))
+                    {
+                        this.redirectPage("entityID", paramvalue, "EduPersonEntitlement", EduPersonEntitlement, "");
                     }
+                    else
+                        this.redirectPage("entityID", paramvalue, "", "", "");
                 }
             }
         }
@@ -71,8 +98,9 @@ namespace OpenAthensKeystoneDotNet4Sample.Controllers
         {
             string str = ConfigurationManager.AppSettings["anatomytvurl"];
             string str2 = ConfigurationManager.AppSettings["returnurlforlogout"];
-            string[] textArray1 = new string[] { str, "login?", paramname, "=", paramvalue, "&", paramname2, "=", paramvalue2 };
+            string textArray1 = str+ "login?"+ paramname+ "="+ paramvalue+ "&"+ paramname2+ "="+ paramvalue2;
             base.Response.Write(string.Concat(textArray1));
+            string personalinfo = "&email="+email+"&firstname="+firstname+"&lastname="+lastname;
             if (base.Request.Cookies["copyweblinkparams"] != null)
             {
                 if (base.Request.Cookies["copyweblinkparams"].Value.Length > 0)
@@ -82,25 +110,25 @@ namespace OpenAthensKeystoneDotNet4Sample.Controllers
                     str3 = str3.Substring(1);
                     if (paramname2 != "")
                     {
-                        string[] textArray2 = new string[] { str, "login?", paramname, "=", paramvalue, "&", paramname2, "=", paramvalue2, "&", str3, "&lastpageurl=", target, "&returnUrl=", str2 };
-                        base.Response.Redirect(string.Concat(textArray2));
+                        string textArray2 = textArray1+ "&"+ str3+ "&lastpageurl="+ target+ "&returnUrl="+ str2;
+                        base.Response.Redirect(string.Concat(textArray2, personalinfo));
                     }
                     else
                     {
-                        string[] textArray3 = new string[] { str, "login?", paramname, "=", paramvalue, "&", str3, "&lastpageurl=", target, "&returnUrl=", str2 };
-                        base.Response.Redirect(string.Concat(textArray3));
+                        string textArray3 = str+ "login?"+ paramname+ "="+ paramvalue+ "&"+ str3+ "&lastpageurl="+ target+ "&returnUrl="+ str2;
+                        base.Response.Redirect(string.Concat(textArray3, personalinfo));
                     }
                 }
             }
             else if (paramname2 != "")
             {
-                string[] textArray4 = new string[] { str, "login?", paramname, "=", paramvalue, "&", paramname2, "=", paramvalue2, "&lastpageurl=", target, "&returnUrl=", str2 };
-                base.Response.Redirect(string.Concat(textArray4));
+                string textArray4 = str+ "login?"+ paramname+ "="+paramvalue+ "&"+ paramname2+ "="+ paramvalue2+ "&lastpageurl="+ target+ "&returnUrl="+ str2;
+                base.Response.Redirect(string.Concat(textArray4, personalinfo));
             }
             else
             {
-                string[] textArray5 = new string[] { str, "login?", paramname, "=", paramvalue, "&lastpageurl=", target, "&returnUrl=", str2 };
-                base.Response.Redirect(string.Concat(textArray5));
+                string textArray5 = str+ "login?"+ paramname+ "="+ paramvalue+ "&lastpageurl="+ target+ "&returnUrl="+ str2;
+                base.Response.Redirect(string.Concat(textArray5, personalinfo));
             }
         }
 
