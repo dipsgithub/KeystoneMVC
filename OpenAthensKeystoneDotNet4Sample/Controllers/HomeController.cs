@@ -9,7 +9,7 @@ namespace OpenAthensKeystoneDotNet4Sample.Controllers
     public class HomeController : Controller
     {
         public ActionResult Index()
-        {
+        {           
             Response.Redirect("/keystone/Account/Login");
             return View();
         }

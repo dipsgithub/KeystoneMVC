@@ -18,16 +18,16 @@ namespace OpenAthensKeystoneDotNet4Sample.Controllers
         // GET: Login
         public void Login(string returnUrl = "/")
         {
-            if (!base.Request.IsAuthenticated)
+            if (!Request.IsAuthenticated)
             {
-                base.HttpContext.GetOwinContext().Authentication.Challenge(Array.Empty<string>());
+                HttpContext.GetOwinContext().Authentication.Challenge(Array.Empty<string>());
             }
             else
             {
                 string target = "";
-                if (base.Request.QueryString["target"] != null)
+                if (Request.QueryString["target"] != null)
                 {
-                    target = base.Request.QueryString["target"].ToString();
+                    target = Request.QueryString["target"].ToString();
                 }
                 string str2 = "";
                 foreach (Claim claim in ClaimsPrincipal.Current.Claims)
@@ -99,36 +99,36 @@ namespace OpenAthensKeystoneDotNet4Sample.Controllers
             string str = ConfigurationManager.AppSettings["anatomytvurl"];
             string str2 = ConfigurationManager.AppSettings["returnurlforlogout"];
             string textArray1 = str+ "login?"+ paramname+ "="+ paramvalue+ "&"+ paramname2+ "="+ paramvalue2;
-            base.Response.Write(string.Concat(textArray1));
+            Response.Write(string.Concat(textArray1));
             string personalinfo = "&email="+email+"&firstname="+firstname+"&lastname="+lastname;
-            if (base.Request.Cookies["copyweblinkparams"] != null)
+            if (Request.Cookies["copyweblinkparams"] != null)
             {
-                if (base.Request.Cookies["copyweblinkparams"].Value.Length > 0)
+                if (Request.Cookies["copyweblinkparams"].Value.Length > 0)
                 {
-                    string str3 = base.Request.Cookies["copyweblinkparams"].Value;
-                    base.Response.Cookies["copyweblinkparams"].Value = "";
+                    string str3 = Request.Cookies["copyweblinkparams"].Value;
+                    Response.Cookies["copyweblinkparams"].Value = "";
                     str3 = str3.Substring(1);
                     if (paramname2 != "")
                     {
                         string textArray2 = textArray1+ "&"+ str3+ "&lastpageurl="+ target+ "&returnUrl="+ str2;
-                        base.Response.Redirect(string.Concat(textArray2, personalinfo));
+                        Response.Redirect(string.Concat(textArray2, personalinfo));
                     }
                     else
                     {
                         string textArray3 = str+ "login?"+ paramname+ "="+ paramvalue+ "&"+ str3+ "&lastpageurl="+ target+ "&returnUrl="+ str2;
-                        base.Response.Redirect(string.Concat(textArray3, personalinfo));
+                        Response.Redirect(string.Concat(textArray3, personalinfo));
                     }
                 }
             }
             else if (paramname2 != "")
             {
                 string textArray4 = str+ "login?"+ paramname+ "="+paramvalue+ "&"+ paramname2+ "="+ paramvalue2+ "&lastpageurl="+ target+ "&returnUrl="+ str2;
-                base.Response.Redirect(string.Concat(textArray4, personalinfo));
+                Response.Redirect(string.Concat(textArray4, personalinfo));
             }
             else
             {
                 string textArray5 = str+ "login?"+ paramname+ "="+ paramvalue+ "&lastpageurl="+ target+ "&returnUrl="+ str2;
-                base.Response.Redirect(string.Concat(textArray5, personalinfo));
+                Response.Redirect(string.Concat(textArray5, personalinfo));
             }
         }
 
